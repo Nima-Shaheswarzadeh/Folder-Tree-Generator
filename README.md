@@ -11,8 +11,6 @@
 😍 **برای تست و استفاده:**
 [![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-87CEEB?style=for-the-badge&labelColor=555555&logo=windows&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/download/v1.0/Tree.Maker.bat)
 
-[![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-87CEEB?style=for-the-badge&labelColor=555555&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/download/v1.0/Tree.Maker.bat)
-
 ---
 
 
