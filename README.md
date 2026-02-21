@@ -8,6 +8,10 @@
 
 ---
 
+😍 **برای تست و استفاده:**
+[![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-1E90FF?style=for-the-badge&labelColor=555555)](https://github.com/YOUR-USERNAME/YOUR-REPO-NAME/releases/latest/download/TreeMaker.bat)
+
+---
 ## 😍 نحوه استفاده سریع
 
 1. فایل `TreeMaker.bat` را داخل هر پوشه‌ای که می‌خواهید بررسی شود قرار دهید.
