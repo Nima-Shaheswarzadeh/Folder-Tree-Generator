@@ -12,9 +12,6 @@
 [![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-1E90FF?style=for-the-badge&labelColor=555555&logo=windows&logoColor=white)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/download/v1.0/Tree.Maker.bat)
 
 ---
-[![VIEW RELEASE](https://img.shields.io/badge/VIEW-RELEASE-6A5ACD?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/tag/v1.0)
-
-**SHA256:** `d1c44a4cdd701ca91c30711c391cd56037f2bd4ff7c1020cfb6afd05b274a589`
 
 
 ## 😍 نحوه استفاده سریع
