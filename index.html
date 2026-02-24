@@ -1,0 +1,2268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Maker — Fluent UI • WPF .NET 9</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #06060b;
+            color: #e4e4e7;
+        }
+
+        /* Code blocks */
+        pre[class*="language-"], code[class*="language-"] {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 12.5px !important;
+            line-height: 1.65 !important;
+        }
+        pre[class*="language-"] {
+            background: #0c0c14 !important;
+            border-radius: 0 0 14px 14px !important;
+            margin: 0 !important;
+            padding: 22px !important;
+            max-height: 620px;
+            overflow: auto;
+        }
+
+        .token.comment { color: #525270 !important; font-style: italic; }
+        .token.string { color: #86efac !important; }
+        .token.keyword { color: #93c5fd !important; }
+        .token.class-name { color: #c4b5fd !important; }
+        .token.function { color: #fbbf24 !important; }
+        .token.number { color: #f9a8d4 !important; }
+        .token.operator { color: #7c8094 !important; }
+        .token.punctuation { color: #7c8094 !important; }
+        .token.attr-name { color: #fbbf24 !important; }
+        .token.attr-value { color: #86efac !important; }
+        .token.tag { color: #93c5fd !important; }
+
+        /* File tabs */
+        .file-tab {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 2px solid transparent;
+            position: relative;
+        }
+        .file-tab.active {
+            background: linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%);
+            border-bottom-color: #818cf8;
+            color: #e0e7ff;
+        }
+        .file-tab:hover:not(.active) {
+            background: rgba(255,255,255,0.03);
+            color: #a5b4fc;
+        }
+        .file-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: #818cf8;
+            filter: blur(4px);
+        }
+
+        /* Copy button */
+        .copy-btn { transition: all 0.15s ease; }
+        .copy-btn:hover { background: #374151; transform: scale(1.02); }
+        .copy-btn.copied { background: #065f46 !important; color: #6ee7b7 !important; }
+
+        /* Glow effects */
+        .glow-indigo { box-shadow: 0 0 80px rgba(99, 102, 241, 0.12), 0 0 160px rgba(99, 102, 241, 0.04); }
+        .glow-purple { box-shadow: 0 0 80px rgba(139, 92, 246, 0.12), 0 0 160px rgba(139, 92, 246, 0.04); }
+
+        /* Tree nodes */
+        .tree-node { cursor: pointer; user-select: none; transition: background 0.1s ease; }
+        .tree-node:hover { background: rgba(99, 102, 241, 0.08); border-radius: 4px; }
+
+        /* WPF Preview buttons */
+        .wpf-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .wpf-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .wpf-btn:hover::before { opacity: 1; }
+        .wpf-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        .wpf-btn:active { transform: translateY(0); }
+
+        /* Progress bar */
+        .progress-fill {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, #6366f1, #818cf8, #a78bfa, #818cf8, #6366f1);
+            background-size: 300% 100%;
+            animation: shimmer 2.5s ease infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -300% 0; }
+            100% { background-position: 300% 0; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 400px; }
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .animate-in { animation: fadeInUp 0.5s ease forwards; }
+        .animate-slide { animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .pulse-ring { animation: pulse-ring 2s infinite; }
+
+        /* Floating orbs background */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Scrollbar */
+        .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #3a3a4a; }
+
+        /* Acrylic card */
+        .acrylic {
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(20px) saturate(1.2);
+            -webkit-backdrop-filter: blur(20px) saturate(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Feature cards */
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Collapsible panel in preview */
+        .collapsible-panel {
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease;
+            overflow: hidden;
+        }
+        .collapsible-panel.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .collapsible-panel.expanded {
+            max-height: 320px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden">
+
+    <!-- Background orbs -->
+    <div class="orb w-96 h-96 bg-indigo-600 -top-48 -left-48 fixed"></div>
+    <div class="orb w-80 h-80 bg-purple-600 top-1/3 -right-40 fixed"></div>
+    <div class="orb w-72 h-72 bg-blue-600 bottom-0 left-1/4 fixed"></div>
+
+    <!-- Header -->
+    <header class="border-b border-white/5 backdrop-blur-xl bg-zinc-950/60 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 relative">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-40 blur-lg -z-10"></div>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-tight">Tree Maker</h1>
+                    <p class="text-[11px] text-zinc-500 font-medium tracking-wide">FLUENT UI · WPF · .NET 9</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2.5">
+                <span class="px-3 py-1.5 text-[11px] font-semibold bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20 tracking-wide">v2.0</span>
+                <span class="px-3 py-1.5 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 tracking-wide">FLUENT</span>
+                <a href="#preview" class="hidden sm:flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all">
+                    <span>Live Demo</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="py-20 px-6 relative">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm text-zinc-400 mb-8 backdrop-blur-sm">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <span>Redesigned with <strong class="text-purple-300">Windows Fluent Design</strong> · Acrylic · Animations</span>
+            </div>
+            <h2 class="text-5xl md:text-6xl font-black text-white mb-5 tracking-tight leading-[1.1]">
+                Modern Folder Tree<br>
+                <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Visualizer & Exporter</span>
+            </h2>
+            <p class="text-lg text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+                A professional WPF desktop app with Fluent UI styling — acrylic backgrounds, animated buttons, collapsible tree panel, and one-click file export.
+            </p>
+
+            <!-- Feature Pills -->
+            <div class="flex flex-wrap justify-center gap-3 text-sm mb-12">
+                <div class="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></span>
+                    <span class="text-zinc-300">Acrylic Background</span>
+                </div>
+                <div class="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-400"></span>
+                    <span class="text-zinc-300">Animated Buttons</span>
+                </div>
+                <div class="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-emerald-400 to-green-400"></span>
+                    <span class="text-zinc-300">Collapsible TreeView</span>
+                </div>
+                <div class="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400"></span>
+                    <span class="text-zinc-300">Open File in Editor</span>
+                </div>
+                <div class="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-rose-400 to-red-400"></span>
+                    <span class="text-zinc-300">Async Progress</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Overview -->
+    <section class="px-6 pb-12">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-xl font-bold text-white mb-5 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                </div>
+                Project Architecture
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="acrylic rounded-2xl p-6">
+                    <div class="text-indigo-400 font-bold text-sm mb-4 tracking-wide flex items-center gap-2">
+                        <span class="text-lg">📁</span> PROJECT STRUCTURE
+                    </div>
+                    <div class="font-mono text-sm space-y-1.5">
+                        <div class="text-indigo-300 font-semibold">TreeMaker/</div>
+                        <div class="ml-5 flex items-center gap-2 text-zinc-400"><span class="text-emerald-400 text-xs">⬢</span> TreeMaker.csproj</div>
+                        <div class="ml-5 flex items-center gap-2 text-zinc-400"><span class="text-blue-400 text-xs">◆</span> App.xaml</div>
+                        <div class="ml-5 flex items-center gap-2 text-zinc-400"><span class="text-purple-400 text-xs">◆</span> App.xaml.cs</div>
+                        <div class="ml-5 flex items-center gap-2 text-zinc-400"><span class="text-blue-400 text-xs">◆</span> MainWindow.xaml</div>
+                        <div class="ml-5 flex items-center gap-2 text-zinc-400"><span class="text-purple-400 text-xs">◆</span> MainWindow.xaml.cs</div>
+                    </div>
+                </div>
+                <div class="acrylic rounded-2xl p-6">
+                    <div class="text-purple-400 font-bold text-sm mb-4 tracking-wide flex items-center gap-2">
+                        <span class="text-lg">⚡</span> KEY DESIGN PATTERNS
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-md bg-blue-500/10 flex items-center justify-center shrink-0 mt-0.5"><span class="text-blue-400 text-xs font-bold">A</span></div>
+                            <div><span class="text-zinc-200 font-medium">Namespace Aliasing</span><br><span class="text-zinc-500">WpfMessageBox, WinFormsFolderBrowserDialog</span></div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-md bg-purple-500/10 flex items-center justify-center shrink-0 mt-0.5"><span class="text-purple-400 text-xs font-bold">S</span></div>
+                            <div><span class="text-zinc-200 font-medium">Storyboard Animations</span><br><span class="text-zinc-500">XAML triggers with DoubleAnimation & ColorAnimation</span></div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-md bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5"><span class="text-emerald-400 text-xs font-bold">P</span></div>
+                            <div><span class="text-zinc-200 font-medium">IProgress&lt;T&gt;</span><br><span class="text-zinc-500">Thread-safe UI updates during async generation</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Files Section -->
+    <section class="px-6 pb-16">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                    </svg>
+                </div>
+                Source Files
+                <span class="text-xs font-normal text-zinc-500 ml-2">5 files · click tabs to browse</span>
+            </h3>
+
+            <!-- File Tabs -->
+            <div class="flex flex-wrap gap-1 bg-zinc-900/80 border border-white/[0.06] rounded-t-2xl p-1.5 backdrop-blur-sm" id="fileTabs">
+                <button class="file-tab active px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400" data-file="csproj" onclick="switchFile('csproj')">
+                    <span class="text-emerald-400 mr-1">⬢</span> TreeMaker.csproj
+                </button>
+                <button class="file-tab px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400" data-file="appxaml" onclick="switchFile('appxaml')">
+                    <span class="text-blue-400 mr-1">◆</span> App.xaml
+                </button>
+                <button class="file-tab px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400" data-file="appcs" onclick="switchFile('appcs')">
+                    <span class="text-purple-400 mr-1">◆</span> App.xaml.cs
+                </button>
+                <button class="file-tab px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400" data-file="mainxaml" onclick="switchFile('mainxaml')">
+                    <span class="text-blue-400 mr-1">◆</span> MainWindow.xaml
+                </button>
+                <button class="file-tab px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400" data-file="maincs" onclick="switchFile('maincs')">
+                    <span class="text-purple-400 mr-1">◆</span> MainWindow.xaml.cs
+                </button>
+            </div>
+
+            <!-- Code Panels -->
+            <div class="relative border border-t-0 border-white/[0.06] rounded-b-2xl overflow-hidden glow-indigo">
+                <!-- Copy Button -->
+                <button id="copyBtn" onclick="copyCurrentCode()" class="copy-btn absolute top-4 right-4 z-10 px-3.5 py-2 bg-zinc-800/80 backdrop-blur-sm text-zinc-400 text-xs font-semibold rounded-lg border border-white/10 flex items-center gap-2 cursor-pointer">
+                    <svg id="copyIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <span id="copyText">Copy</span>
+                </button>
+
+                <!-- .csproj -->
+                <div id="file-csproj" class="code-panel">
+                    <pre class="scrollbar-thin"><code class="language-markup">&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+
+  &lt;PropertyGroup&gt;
+    &lt;OutputType&gt;WinExe&lt;/OutputType&gt;
+    &lt;TargetFramework&gt;net9.0-windows&lt;/TargetFramework&gt;
+    &lt;RootNamespace&gt;TreeMaker&lt;/RootNamespace&gt;
+    &lt;AssemblyName&gt;TreeMaker&lt;/AssemblyName&gt;
+    &lt;UseWPF&gt;true&lt;/UseWPF&gt;
+    &lt;UseWindowsForms&gt;true&lt;/UseWindowsForms&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+    &lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;
+    &lt;ApplicationIcon /&gt;
+  &lt;/PropertyGroup&gt;
+
+&lt;/Project&gt;</code></pre>
+                </div>
+
+                <!-- App.xaml -->
+                <div id="file-appxaml" class="code-panel hidden">
+                    <pre class="scrollbar-thin"><code class="language-markup">&lt;Application x:Class="TreeMaker.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml"&gt;
+
+    &lt;Application.Resources&gt;
+        &lt;!-- Global resources --&gt;
+    &lt;/Application.Resources&gt;
+
+&lt;/Application&gt;</code></pre>
+                </div>
+
+                <!-- App.xaml.cs -->
+                <div id="file-appcs" class="code-panel hidden">
+                    <pre class="scrollbar-thin"><code class="language-csharp">namespace TreeMaker
+{
+    /// &lt;summary&gt;
+    /// Interaction logic for App.xaml
+    /// &lt;/summary&gt;
+    public partial class App : System.Windows.Application
+    {
+    }
+}</code></pre>
+                </div>
+
+                <!-- MainWindow.xaml -->
+                <div id="file-mainxaml" class="code-panel hidden">
+                    <pre class="scrollbar-thin"><code class="language-markup">&lt;Window x:Class="TreeMaker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tree Maker"
+        Height="720" Width="960"
+        MinHeight="550" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        ResizeMode="CanResizeWithGrip"&gt;
+
+    &lt;Window.Resources&gt;
+
+        &lt;!-- ══════════════════════════════════════════════
+             Fluent Acrylic Button  (Primary)
+             ══════════════════════════════════════════════ --&gt;
+        &lt;Style x:Key="FluentPrimaryButton" TargetType="Button"&gt;
+            &lt;Setter Property="Background"  Value="#6366F1"/&gt;
+            &lt;Setter Property="Foreground"  Value="White"/&gt;
+            &lt;Setter Property="FontSize"    Value="13"/&gt;
+            &lt;Setter Property="FontWeight"  Value="SemiBold"/&gt;
+            &lt;Setter Property="Padding"     Value="28,12"/&gt;
+            &lt;Setter Property="Cursor"      Value="Hand"/&gt;
+            &lt;Setter Property="BorderThickness" Value="0"/&gt;
+            &lt;Setter Property="Effect"&gt;
+                &lt;Setter.Value&gt;
+                    &lt;DropShadowEffect BlurRadius="16" ShadowDepth="4"
+                                      Opacity="0.35" Color="#6366F1"/&gt;
+                &lt;/Setter.Value&gt;
+            &lt;/Setter&gt;
+            &lt;Setter Property="Template"&gt;
+                &lt;Setter.Value&gt;
+                    &lt;ControlTemplate TargetType="Button"&gt;
+                        &lt;Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                RenderTransformOrigin="0.5,0.5"&gt;
+                            &lt;Border.RenderTransform&gt;
+                                &lt;ScaleTransform x:Name="btnScale"
+                                                ScaleX="1" ScaleY="1"/&gt;
+                            &lt;/Border.RenderTransform&gt;
+                            &lt;ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/&gt;
+                        &lt;/Border&gt;
+                        &lt;ControlTemplate.Triggers&gt;
+                            &lt;Trigger Property="IsMouseOver" Value="True"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#818CF8"/&gt;
+                                &lt;Trigger.EnterActions&gt;
+                                    &lt;BeginStoryboard&gt;
+                                        &lt;Storyboard&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1.04" Duration="0:0:0.15"/&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1.04" Duration="0:0:0.15"/&gt;
+                                        &lt;/Storyboard&gt;
+                                    &lt;/BeginStoryboard&gt;
+                                &lt;/Trigger.EnterActions&gt;
+                                &lt;Trigger.ExitActions&gt;
+                                    &lt;BeginStoryboard&gt;
+                                        &lt;Storyboard&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1" Duration="0:0:0.15"/&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1" Duration="0:0:0.15"/&gt;
+                                        &lt;/Storyboard&gt;
+                                    &lt;/BeginStoryboard&gt;
+                                &lt;/Trigger.ExitActions&gt;
+                            &lt;/Trigger&gt;
+                            &lt;Trigger Property="IsPressed" Value="True"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#4F46E5"/&gt;
+                            &lt;/Trigger&gt;
+                            &lt;Trigger Property="IsEnabled" Value="False"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#3F3F5C"/&gt;
+                                &lt;Setter Property="Foreground" Value="#71717A"/&gt;
+                            &lt;/Trigger&gt;
+                        &lt;/ControlTemplate.Triggers&gt;
+                    &lt;/ControlTemplate&gt;
+                &lt;/Setter.Value&gt;
+            &lt;/Setter&gt;
+        &lt;/Style&gt;
+
+        &lt;!-- ══════════════════════════════════════════════
+             Fluent Secondary Button
+             ══════════════════════════════════════════════ --&gt;
+        &lt;Style x:Key="FluentSecondaryButton" TargetType="Button"&gt;
+            &lt;Setter Property="Background"  Value="#27273A"/&gt;
+            &lt;Setter Property="Foreground"  Value="#C7D2FE"/&gt;
+            &lt;Setter Property="FontSize"    Value="13"/&gt;
+            &lt;Setter Property="FontWeight"  Value="SemiBold"/&gt;
+            &lt;Setter Property="Padding"     Value="28,12"/&gt;
+            &lt;Setter Property="Cursor"      Value="Hand"/&gt;
+            &lt;Setter Property="BorderThickness" Value="1"/&gt;
+            &lt;Setter Property="BorderBrush" Value="#3F3F5C"/&gt;
+            &lt;Setter Property="Template"&gt;
+                &lt;Setter.Value&gt;
+                    &lt;ControlTemplate TargetType="Button"&gt;
+                        &lt;Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                RenderTransformOrigin="0.5,0.5"&gt;
+                            &lt;Border.RenderTransform&gt;
+                                &lt;ScaleTransform x:Name="btnScale2"
+                                                ScaleX="1" ScaleY="1"/&gt;
+                            &lt;/Border.RenderTransform&gt;
+                            &lt;ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/&gt;
+                        &lt;/Border&gt;
+                        &lt;ControlTemplate.Triggers&gt;
+                            &lt;Trigger Property="IsMouseOver" Value="True"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#33334D"/&gt;
+                                &lt;Setter TargetName="bd" Property="BorderBrush"
+                                        Value="#6366F1"/&gt;
+                                &lt;Trigger.EnterActions&gt;
+                                    &lt;BeginStoryboard&gt;
+                                        &lt;Storyboard&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1.04" Duration="0:0:0.15"/&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1.04" Duration="0:0:0.15"/&gt;
+                                        &lt;/Storyboard&gt;
+                                    &lt;/BeginStoryboard&gt;
+                                &lt;/Trigger.EnterActions&gt;
+                                &lt;Trigger.ExitActions&gt;
+                                    &lt;BeginStoryboard&gt;
+                                        &lt;Storyboard&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1" Duration="0:0:0.15"/&gt;
+                                            &lt;DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1" Duration="0:0:0.15"/&gt;
+                                        &lt;/Storyboard&gt;
+                                    &lt;/BeginStoryboard&gt;
+                                &lt;/Trigger.ExitActions&gt;
+                            &lt;/Trigger&gt;
+                            &lt;Trigger Property="IsPressed" Value="True"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#1E1E30"/&gt;
+                            &lt;/Trigger&gt;
+                            &lt;Trigger Property="IsEnabled" Value="False"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#1C1C2E"/&gt;
+                                &lt;Setter Property="Foreground" Value="#52525B"/&gt;
+                            &lt;/Trigger&gt;
+                        &lt;/ControlTemplate.Triggers&gt;
+                    &lt;/ControlTemplate&gt;
+                &lt;/Setter.Value&gt;
+            &lt;/Setter&gt;
+        &lt;/Style&gt;
+
+        &lt;!-- ══════════════════════════════════════════════
+             Toggle Button for Collapsible Panel
+             ══════════════════════════════════════════════ --&gt;
+        &lt;Style x:Key="ToggleExpandButton" TargetType="ToggleButton"&gt;
+            &lt;Setter Property="Background"  Value="Transparent"/&gt;
+            &lt;Setter Property="Foreground"  Value="#A1A1AA"/&gt;
+            &lt;Setter Property="FontSize"    Value="12"/&gt;
+            &lt;Setter Property="Cursor"      Value="Hand"/&gt;
+            &lt;Setter Property="BorderThickness" Value="0"/&gt;
+            &lt;Setter Property="Padding"     Value="12,8"/&gt;
+            &lt;Setter Property="Template"&gt;
+                &lt;Setter.Value&gt;
+                    &lt;ControlTemplate TargetType="ToggleButton"&gt;
+                        &lt;Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"&gt;
+                            &lt;ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/&gt;
+                        &lt;/Border&gt;
+                        &lt;ControlTemplate.Triggers&gt;
+                            &lt;Trigger Property="IsMouseOver" Value="True"&gt;
+                                &lt;Setter TargetName="bd" Property="Background"
+                                        Value="#1E1E30"/&gt;
+                            &lt;/Trigger&gt;
+                        &lt;/ControlTemplate.Triggers&gt;
+                    &lt;/ControlTemplate&gt;
+                &lt;/Setter.Value&gt;
+            &lt;/Setter&gt;
+        &lt;/Style&gt;
+
+    &lt;/Window.Resources&gt;
+
+    &lt;!-- ══════════════════════════════════════════════════
+         Main chrome border (simulates a borderless window)
+         ══════════════════════════════════════════════════ --&gt;
+    &lt;Border CornerRadius="14"
+            Background="#111118"
+            BorderBrush="#2A2A3A"
+            BorderThickness="1"&gt;
+        &lt;Grid&gt;
+            &lt;Grid.RowDefinitions&gt;
+                &lt;RowDefinition Height="40"/&gt;   &lt;!-- custom title bar --&gt;
+                &lt;RowDefinition Height="*"/&gt;
+            &lt;/Grid.RowDefinitions&gt;
+
+            &lt;!-- ─── Custom Title Bar ─── --&gt;
+            &lt;Border Grid.Row="0"
+                    Background="#0D0D15"
+                    CornerRadius="14,14,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"&gt;
+                &lt;Grid Margin="14,0"&gt;
+                    &lt;StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"&gt;
+                        &lt;TextBlock Text="🌳" FontSize="14" Margin="0,0,8,0"/&gt;
+                        &lt;TextBlock Text="Tree Maker"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#A1A1AA"/&gt;
+                        &lt;TextBlock Text=" — Fluent"
+                                   FontSize="10" Foreground="#52525B"
+                                   VerticalAlignment="Center" Margin="4,1,0,0"/&gt;
+                    &lt;/StackPanel&gt;
+
+                    &lt;StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"&gt;
+                        &lt;Button Content="─" FontSize="10" Width="36" Height="28"
+                                Style="{StaticResource FluentSecondaryButton}"
+                                Padding="0" Click="MinimizeButton_Click"/&gt;
+                        &lt;Button Content="□" FontSize="10" Width="36" Height="28"
+                                Style="{StaticResource FluentSecondaryButton}"
+                                Padding="0" Margin="4,0" Click="MaximizeButton_Click"/&gt;
+                        &lt;Button Content="✕" FontSize="10" Width="36" Height="28"
+                                Background="#7F1D1D" Foreground="#FCA5A5"
+                                Style="{StaticResource FluentSecondaryButton}"
+                                Padding="0" Click="CloseButton_Click"/&gt;
+                    &lt;/StackPanel&gt;
+                &lt;/Grid&gt;
+            &lt;/Border&gt;
+
+            &lt;!-- ─── Content Area ─── --&gt;
+            &lt;Grid Grid.Row="1" Margin="28,20,28,24"&gt;
+                &lt;Grid.RowDefinitions&gt;
+                    &lt;RowDefinition Height="Auto"/&gt;  &lt;!-- Header --&gt;
+                    &lt;RowDefinition Height="Auto"/&gt;  &lt;!-- Path display --&gt;
+                    &lt;RowDefinition Height="Auto"/&gt;  &lt;!-- Main buttons --&gt;
+                    &lt;RowDefinition Height="Auto"/&gt;  &lt;!-- Toggle --&gt;
+                    &lt;RowDefinition Height="*"/&gt;     &lt;!-- Collapsible tree --&gt;
+                    &lt;RowDefinition Height="Auto"/&gt;  &lt;!-- Progress --&gt;
+                    &lt;RowDefinition Height="Auto"/&gt;  &lt;!-- Generate --&gt;
+                &lt;/Grid.RowDefinitions&gt;
+
+                &lt;!-- Header --&gt;
+                &lt;StackPanel Grid.Row="0" Margin="0,0,0,20"&gt;
+                    &lt;TextBlock Text="🌳  Tree Maker"
+                               FontSize="26" FontWeight="Bold"
+                               Foreground="White"/&gt;
+                    &lt;TextBlock Text="Select a folder, visualize its structure, export to a text file."
+                               FontSize="13" Foreground="#71717A" Margin="0,6,0,0"/&gt;
+                &lt;/StackPanel&gt;
+
+                &lt;!-- Selected Folder Path --&gt;
+                &lt;Border Grid.Row="1"
+                        Background="#18182B"
+                        CornerRadius="10"
+                        Padding="14,10"
+                        Margin="0,0,0,16"
+                        BorderBrush="#2A2A3A" BorderThickness="1"&gt;
+                    &lt;TextBlock x:Name="FolderPathText"
+                               Text="No folder selected…"
+                               FontSize="12.5"
+                               Foreground="#71717A"
+                               TextTrimming="CharacterEllipsis"/&gt;
+                &lt;/Border&gt;
+
+                &lt;!-- Main Action Buttons --&gt;
+                &lt;UniformGrid Grid.Row="2" Columns="2"
+                             Margin="0,0,0,12"&gt;
+                    &lt;Button x:Name="SelectFolderButton"
+                            Content="📂  Select Folder"
+                            Style="{StaticResource FluentPrimaryButton}"
+                            Margin="0,0,6,0"
+                            Click="SelectFolderButton_Click"/&gt;
+                    &lt;Button x:Name="OpenFileButton"
+                            Content="📄  Open File"
+                            Style="{StaticResource FluentSecondaryButton}"
+                            Margin="6,0,0,0"
+                            IsEnabled="False"
+                            Click="OpenFileButton_Click"/&gt;
+                &lt;/UniformGrid&gt;
+
+                &lt;!-- Collapsible Toggle --&gt;
+                &lt;ToggleButton x:Name="TreeToggle"
+                              Grid.Row="3"
+                              Style="{StaticResource ToggleExpandButton}"
+                              Margin="0,0,0,4"
+                              Checked="TreeToggle_Changed"
+                              Unchecked="TreeToggle_Changed"&gt;
+                    &lt;StackPanel Orientation="Horizontal"&gt;
+                        &lt;TextBlock x:Name="ToggleArrow" Text="▶"
+                                   FontSize="10" Margin="0,0,8,0"
+                                   Foreground="#6366F1"
+                                   RenderTransformOrigin="0.5,0.5"&gt;
+                            &lt;TextBlock.RenderTransform&gt;
+                                &lt;RotateTransform x:Name="ArrowRotation" Angle="0"/&gt;
+                            &lt;/TextBlock.RenderTransform&gt;
+                        &lt;/TextBlock&gt;
+                        &lt;TextBlock Text="Folder Structure"
+                                   FontSize="12" Foreground="#A1A1AA"/&gt;
+                    &lt;/StackPanel&gt;
+                &lt;/ToggleButton&gt;
+
+                &lt;!-- Collapsible TreeView Panel --&gt;
+                &lt;Border x:Name="TreePanel"
+                        Grid.Row="4"
+                        Background="#18182B"
+                        BorderBrush="#2A2A3A"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Margin="0,0,0,12"
+                        Visibility="Collapsed"&gt;
+                    &lt;TreeView x:Name="FolderTreeView"
+                              BorderThickness="0"
+                              Background="Transparent"
+                              Padding="10"
+                              FontSize="12.5"
+                              Foreground="#D4D4D8"/&gt;
+                &lt;/Border&gt;
+
+                &lt;!-- Progress --&gt;
+                &lt;StackPanel Grid.Row="5" Margin="0,0,0,12"&gt;
+                    &lt;TextBlock x:Name="StatusText"
+                               Text="Ready"
+                               FontSize="11" Foreground="#52525B" Margin="0,0,0,6"/&gt;
+                    &lt;Border Background="#1E1E30" CornerRadius="5" Height="6"&gt;
+                        &lt;Border x:Name="ProgressFill"
+                                Background="#6366F1"
+                                CornerRadius="5"
+                                HorizontalAlignment="Left"
+                                Width="0"/&gt;
+                    &lt;/Border&gt;
+                &lt;/StackPanel&gt;
+
+                &lt;!-- Generate Button --&gt;
+                &lt;Button x:Name="GenerateButton"
+                        Grid.Row="6"
+                        Content="⚡  Generate Tree File"
+                        Style="{StaticResource FluentPrimaryButton}"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="False"
+                        Click="GenerateButton_Click"/&gt;
+            &lt;/Grid&gt;
+        &lt;/Grid&gt;
+    &lt;/Border&gt;
+
+&lt;/Window&gt;</code></pre>
+                </div>
+
+                <!-- MainWindow.xaml.cs -->
+                <div id="file-maincs" class="code-panel hidden">
+                    <pre class="scrollbar-thin"><code class="language-csharp">using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
+
+// ── Aliases to eliminate WPF ↔ WinForms ambiguity ──
+using WpfMessageBox                = System.Windows.MessageBox;
+using WpfApplication               = System.Windows.Application;
+using WinFormsFolderBrowserDialog   = System.Windows.Forms.FolderBrowserDialog;
+using WinFormsDialogResult          = System.Windows.Forms.DialogResult;
+
+namespace TreeMaker
+{
+    /// &lt;summary&gt;
+    /// Fluent-styled main window – folder tree visualiser &amp; exporter.
+    /// &lt;/summary&gt;
+    public partial class MainWindow : System.Windows.Window
+    {
+        private string? _selectedFolderPath;
+        private string? _generatedFilePath;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Custom Title-Bar Handlers
+        // ═══════════════════════════════════════════════
+        private void TitleBar_MouseLeftButtonDown(object sender,
+            System.Windows.Input.MouseButtonEventArgs e) =&gt; DragMove();
+
+        private void MinimizeButton_Click(object sender,
+            System.Windows.RoutedEventArgs e) =&gt;
+            WindowState = System.Windows.WindowState.Minimized;
+
+        private void MaximizeButton_Click(object sender,
+            System.Windows.RoutedEventArgs e) =&gt;
+            WindowState = WindowState == System.Windows.WindowState.Maximized
+                ? System.Windows.WindowState.Normal
+                : System.Windows.WindowState.Maximized;
+
+        private void CloseButton_Click(object sender,
+            System.Windows.RoutedEventArgs e) =&gt; Close();
+
+        // ═══════════════════════════════════════════════
+        //  Select Folder
+        // ═══════════════════════════════════════════════
+        private void SelectFolderButton_Click(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            using var dialog = new WinFormsFolderBrowserDialog
+            {
+                Description           = "Choose a folder to visualise",
+                ShowNewFolderButton    = true,
+                UseDescriptionForTitle = true
+            };
+
+            if (dialog.ShowDialog() != WinFormsDialogResult.OK) return;
+
+            _selectedFolderPath    = dialog.SelectedPath;
+            FolderPathText.Text    = _selectedFolderPath;
+            FolderPathText.Foreground =
+                new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)
+                    System.Windows.Media.ColorConverter
+                        .ConvertFromString("#E4E4E7"));
+
+            GenerateButton.IsEnabled = true;
+
+            PopulateTreeView(_selectedFolderPath);
+            StatusText.Text = $"Loaded — {_selectedFolderPath}";
+
+            // Auto-expand the tree panel
+            TreeToggle.IsChecked = true;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Open Generated File
+        // ═══════════════════════════════════════════════
+        private void OpenFileButton_Click(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_generatedFilePath) ||
+                !File.Exists(_generatedFilePath))
+            {
+                WpfMessageBox.Show(
+                    "No file has been generated yet.\n" +
+                    "Select a folder and click Generate first.",
+                    "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName        = _generatedFilePath,
+                UseShellExecute = true   // opens in default text editor
+            });
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Collapsible Panel Toggle
+        // ═══════════════════════════════════════════════
+        private void TreeToggle_Changed(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            bool open = TreeToggle.IsChecked == true;
+
+            // Rotate the arrow ▶ → ▼
+            var anim = new DoubleAnimation
+            {
+                To       = open ? 90 : 0,
+                Duration = TimeSpan.FromMilliseconds(200),
+                EasingFunction = new QuadraticEase
+                    { EasingMode = EasingMode.EaseInOut }
+            };
+            ArrowRotation.BeginAnimation(
+                System.Windows.Media.RotateTransform.AngleProperty, anim);
+
+            TreePanel.Visibility = open
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Populate TreeView
+        // ═══════════════════════════════════════════════
+        private void PopulateTreeView(string rootPath)
+        {
+            FolderTreeView.Items.Clear();
+
+            var rootDir  = new DirectoryInfo(rootPath);
+            var rootNode = CreateTreeNode(rootDir);
+            FolderTreeView.Items.Add(rootNode);
+            rootNode.IsExpanded = true;
+        }
+
+        private TreeViewItem CreateTreeNode(DirectoryInfo dir)
+        {
+            var node = new TreeViewItem
+            {
+                Header     = $"📁 {dir.Name}",
+                Tag        = dir.FullName,
+                IsExpanded = false
+            };
+
+            try
+            {
+                foreach (var sub in dir.GetDirectories())
+                    node.Items.Add(CreateTreeNode(sub));
+
+                foreach (var file in dir.GetFiles())
+                {
+                    string icon = IconFor(
+                        file.Extension.ToLowerInvariant());
+                    node.Items.Add(new TreeViewItem
+                    {
+                        Header = $"{icon} {file.Name}",
+                        Tag    = file.FullName
+                    });
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                node.Items.Add(new TreeViewItem
+                {
+                    Header     = "⛔ Access Denied",
+                    Foreground = System.Windows.Media.Brushes.Gray
+                });
+            }
+            catch (IOException ex)
+            {
+                node.Items.Add(new TreeViewItem
+                {
+                    Header     = $"⚠️ {ex.Message}",
+                    Foreground = System.Windows.Media.Brushes.Gray
+                });
+            }
+
+            return node;
+        }
+
+        private static string IconFor(string ext) =&gt; ext switch
+        {
+            ".cs"     =&gt; "🟣",
+            ".xaml"   =&gt; "🔵",
+            ".json"   =&gt; "🟡",
+            ".xml"    =&gt; "🟠",
+            ".txt"    =&gt; "📝",
+            ".md"     =&gt; "📖",
+            ".sln"    =&gt; "🏗️",
+            ".csproj" =&gt; "🔧",
+            ".exe"    =&gt; "⚙️",
+            ".dll"    =&gt; "📦",
+            ".png" or ".jpg" or ".jpeg"
+                or ".gif" or ".bmp" =&gt; "🖼️",
+            _         =&gt; "📄"
+        };
+
+        // ═══════════════════════════════════════════════
+        //  Generate Tree File  (async + animated progress)
+        // ═══════════════════════════════════════════════
+        private async void GenerateButton_Click(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_selectedFolderPath) ||
+                !Directory.Exists(_selectedFolderPath))
+            {
+                WpfMessageBox.Show(
+                    "Please select a valid folder first.",
+                    "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            // Lock UI
+            GenerateButton.IsEnabled     = false;
+            SelectFolderButton.IsEnabled = false;
+            OpenFileButton.IsEnabled     = false;
+            StatusText.Text              = "Generating…";
+            AnimateProgress(0);
+
+            string outPath = Path.Combine(
+                _selectedFolderPath, "Folder_Structure.txt");
+
+            try
+            {
+                int total = await Task.Run(
+                    () =&gt; CountItems(_selectedFolderPath));
+                int done  = 0;
+
+                var sb = new StringBuilder();
+                sb.AppendLine(
+                    $"Folder Structure: {_selectedFolderPath}");
+                sb.AppendLine(new string('═', 60));
+                sb.AppendLine();
+
+                var progress = new Progress&lt;string&gt;(name =&gt;
+                {
+                    done++;
+                    double pct = total &gt; 0
+                        ? (double)done / total * 100 : 0;
+                    AnimateProgress(pct);
+                    StatusText.Text = $"Processing: {name}";
+                });
+
+                await Task.Run(() =&gt;
+                    BuildTree(sb, _selectedFolderPath,
+                              "", true, progress));
+
+                await File.WriteAllTextAsync(outPath, sb.ToString());
+
+                _generatedFilePath = outPath;
+                AnimateProgress(100);
+                StatusText.Text = $"✅ Saved → {outPath}";
+
+                OpenFileButton.IsEnabled = true;
+
+                WpfMessageBox.Show(
+                    $"Tree file created!\n\n{outPath}",
+                    "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                WpfMessageBox.Show(
+                    $"Error:\n{ex.Message}", "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+                StatusText.Text = "Error occurred.";
+            }
+            finally
+            {
+                GenerateButton.IsEnabled     = true;
+                SelectFolderButton.IsEnabled = true;
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Animated progress helper
+        // ═══════════════════════════════════════════════
+        private void AnimateProgress(double percent)
+        {
+            double maxWidth = ProgressFill.Parent is
+                System.Windows.FrameworkElement parent
+                    ? parent.ActualWidth : 400;
+
+            var anim = new DoubleAnimation
+            {
+                To       = maxWidth * (percent / 100.0),
+                Duration = TimeSpan.FromMilliseconds(250),
+                EasingFunction = new QuadraticEase
+                    { EasingMode = EasingMode.EaseOut }
+            };
+            ProgressFill.BeginAnimation(
+                System.Windows.FrameworkElement.WidthProperty, anim);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Helpers
+        // ═══════════════════════════════════════════════
+        private static int CountItems(string path)
+        {
+            int n = 0;
+            try
+            {
+                n += Directory.GetFiles(path).Length;
+                foreach (string d in Directory.GetDirectories(path))
+                { n++; n += CountItems(d); }
+            }
+            catch { }
+            return n;
+        }
+
+        private static void BuildTree(
+            StringBuilder sb, string path, string indent,
+            bool isRoot, IProgress&lt;string&gt; progress)
+        {
+            var dir = new DirectoryInfo(path);
+            if (isRoot) sb.AppendLine($"{dir.Name}/");
+
+            try
+            {
+                var items = new List&lt;FileSystemInfo&gt;();
+                items.AddRange(dir.GetDirectories());
+                items.AddRange(dir.GetFiles());
+
+                for (int i = 0; i &lt; items.Count; i++)
+                {
+                    bool last  = i == items.Count - 1;
+                    string con = last ? "└── " : "├── ";
+                    string ci  = indent + (last ? "    " : "│   ");
+
+                    if (items[i] is DirectoryInfo sub)
+                    {
+                        sb.AppendLine($"{indent}{con}{sub.Name}/");
+                        progress.Report(sub.Name);
+                        BuildTree(sb, sub.FullName, ci,
+                                  false, progress);
+                    }
+                    else if (items[i] is FileInfo f)
+                    {
+                        sb.AppendLine($"{indent}{con}{f.Name}");
+                        progress.Report(f.Name);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                sb.AppendLine($"{indent}└── [Access Denied]");
+            }
+            catch (IOException ex)
+            {
+                sb.AppendLine($"{indent}└── [Error: {ex.Message}]");
+            }
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Interactive Preview -->
+    <section id="preview" class="px-6 pb-20">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                Interactive Preview
+                <span class="text-xs font-normal text-zinc-500 ml-2">Try the simulated app below</span>
+            </h3>
+
+            <!-- Simulated Fluent App -->
+            <div class="rounded-2xl overflow-hidden shadow-2xl glow-purple border border-white/[0.06]" style="background: #111118;">
+                <!-- Title Bar -->
+                <div class="px-4 py-2.5 flex items-center justify-between border-b border-white/[0.06]" style="background: #0d0d15;">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">🌳</span>
+                        <span class="text-xs font-semibold text-zinc-400">Tree Maker</span>
+                        <span class="text-[10px] text-zinc-600">— Fluent</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-7 h-5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] cursor-pointer flex items-center justify-center transition-colors">
+                            <span class="text-[9px] text-zinc-500">─</span>
+                        </div>
+                        <div class="w-7 h-5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] cursor-pointer flex items-center justify-center transition-colors">
+                            <span class="text-[9px] text-zinc-500">□</span>
+                        </div>
+                        <div class="w-7 h-5 rounded-md bg-red-900/30 hover:bg-red-900/50 cursor-pointer flex items-center justify-center transition-colors">
+                            <span class="text-[9px] text-red-400">✕</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- App Content -->
+                <div class="p-7">
+                    <!-- Header -->
+                    <div class="mb-5">
+                        <div class="text-2xl font-bold text-white">🌳  Tree Maker</div>
+                        <div class="text-xs text-zinc-500 mt-1.5">Select a folder, visualize its structure, export to a text file.</div>
+                    </div>
+
+                    <!-- Path Display -->
+                    <div id="previewPathBox" class="rounded-xl px-4 py-3 mb-4 border border-white/[0.06] text-xs truncate" style="background: #18182b;">
+                        <span id="previewPath" class="text-zinc-500">No folder selected…</span>
+                    </div>
+
+                    <!-- Two Main Buttons -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button onclick="simSelectFolder()" class="wpf-btn text-white text-xs font-semibold py-3 rounded-xl text-center" style="background: #6366f1; box-shadow: 0 8px 20px rgba(99,102,241,0.25);">
+                            📂  Select Folder
+                        </button>
+                        <button id="previewOpenBtn" onclick="simOpenFile()" disabled class="wpf-btn text-xs font-semibold py-3 rounded-xl text-center border cursor-not-allowed" style="background: #27273a; color: #52525b; border-color: #3f3f5c;">
+                            📄  Open File
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Toggle -->
+                    <button id="treeToggleBtn" onclick="simToggleTree()" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/[0.03] transition-colors mb-2 cursor-pointer w-full text-left">
+                        <span id="previewArrow" class="text-[10px] text-indigo-400 transition-transform duration-200 inline-block">▶</span>
+                        <span class="text-xs text-zinc-400">Folder Structure</span>
+                        <span id="treeItemCount" class="text-[10px] text-zinc-600 ml-auto hidden">0 items</span>
+                    </button>
+
+                    <!-- Collapsible TreeView -->
+                    <div id="previewTreePanel" class="collapsible-panel collapsed rounded-xl border border-white/[0.06] mb-4 p-3 scrollbar-thin" style="background: #18182b; max-height: 0; overflow: auto;">
+                        <div id="previewTree" class="text-xs text-zinc-400">
+                            <div class="text-center py-8 text-zinc-600 italic">Select a folder to view structure</div>
+                        </div>
+                    </div>
+
+                    <!-- Status & Progress -->
+                    <div class="mb-4">
+                        <div id="previewStatus" class="text-[11px] text-zinc-600 mb-2">Ready</div>
+                        <div class="w-full rounded-md h-1.5 overflow-hidden" style="background: #1e1e30;">
+                            <div id="previewProgress" class="h-full rounded-md progress-fill" style="width: 0%; background: #6366f1;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button id="previewGenBtn" onclick="simGenerate()" disabled class="wpf-btn w-full text-xs font-semibold py-3 rounded-xl text-center cursor-not-allowed" style="background: #3f3f5c; color: #52525b;">
+                        ⚡  Generate Tree File
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="px-6 pb-20">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                Quick Start
+            </h3>
+            <div class="grid md:grid-cols-3 gap-5">
+                <div class="feature-card acrylic rounded-2xl p-7">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-5 text-2xl">1️⃣</div>
+                    <h4 class="font-bold text-white mb-2 text-[15px]">Create Project</h4>
+                    <code class="text-[11px] text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-lg inline-block font-semibold">dotnet new wpf -n TreeMaker -f net9.0</code>
+                    <p class="text-sm text-zinc-500 mt-3 leading-relaxed">Scaffold a new WPF project targeting .NET 9.</p>
+                </div>
+                <div class="feature-card acrylic rounded-2xl p-7">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-5 text-2xl">2️⃣</div>
+                    <h4 class="font-bold text-white mb-2 text-[15px]">Copy All 5 Files</h4>
+                    <p class="text-sm text-zinc-500 leading-relaxed">Replace the generated files with the source code above. Use the <span class="text-zinc-300 font-medium">Copy</span> button for each file tab.</p>
+                </div>
+                <div class="feature-card acrylic rounded-2xl p-7">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-5 text-2xl">3️⃣</div>
+                    <h4 class="font-bold text-white mb-2 text-[15px]">Build & Run</h4>
+                    <code class="text-[11px] text-amber-300 bg-amber-500/10 px-3 py-1.5 rounded-lg inline-block font-semibold">dotnet run</code>
+                    <p class="text-sm text-zinc-500 mt-3 leading-relaxed">Launch the app, pick a folder, and generate your tree file!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/[0.04] py-8 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-zinc-600">
+            <span class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] text-white font-bold">T</span>
+                Tree Maker v2.0 — Fluent UI Edition
+            </span>
+            <span>Built for Visual Studio 2026 · .NET 9</span>
+        </div>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════
+        //  Raw code strings for clipboard copy
+        // ═══════════════════════════════════════
+        const codeFiles = {
+            csproj: `<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <RootNamespace>TreeMaker</RootNamespace>
+    <AssemblyName>TreeMaker</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon />
+  </PropertyGroup>
+
+</Project>`,
+
+            appxaml: `<Application x:Class="TreeMaker.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+
+    <Application.Resources>
+        <!-- Global resources -->
+    </Application.Resources>
+
+</Application>`,
+
+            appcs: `namespace TreeMaker
+{
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : System.Windows.Application
+    {
+    }
+}`,
+
+            mainxaml: `<Window x:Class="TreeMaker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tree Maker"
+        Height="720" Width="960"
+        MinHeight="550" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        ResizeMode="CanResizeWithGrip">
+
+    <Window.Resources>
+
+        <!-- Fluent Acrylic Button (Primary) -->
+        <Style x:Key="FluentPrimaryButton" TargetType="Button">
+            <Setter Property="Background"  Value="#6366F1"/>
+            <Setter Property="Foreground"  Value="White"/>
+            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="FontWeight"  Value="SemiBold"/>
+            <Setter Property="Padding"     Value="28,12"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="4"
+                                      Opacity="0.35" Color="#6366F1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="btnScale"
+                                                ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#818CF8"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1.04" Duration="0:0:0.15"/>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1.04" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1" Duration="0:0:0.15"/>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#4F46E5"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#3F3F5C"/>
+                                <Setter Property="Foreground" Value="#71717A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Fluent Secondary Button -->
+        <Style x:Key="FluentSecondaryButton" TargetType="Button">
+            <Setter Property="Background"  Value="#27273A"/>
+            <Setter Property="Foreground"  Value="#C7D2FE"/>
+            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="FontWeight"  Value="SemiBold"/>
+            <Setter Property="Padding"     Value="28,12"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#3F3F5C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="btnScale2"
+                                                ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#33334D"/>
+                                <Setter TargetName="bd" Property="BorderBrush"
+                                        Value="#6366F1"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1.04" Duration="0:0:0.15"/>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1.04" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleX"
+                                                To="1" Duration="0:0:0.15"/>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="btnScale2"
+                                                Storyboard.TargetProperty="ScaleY"
+                                                To="1" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#1E1E30"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#1C1C2E"/>
+                                <Setter Property="Foreground" Value="#52525B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Toggle Button for Collapsible Panel -->
+        <Style x:Key="ToggleExpandButton" TargetType="ToggleButton">
+            <Setter Property="Background"  Value="Transparent"/>
+            <Setter Property="Foreground"  Value="#A1A1AA"/>
+            <Setter Property="FontSize"    Value="12"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"     Value="12,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="#1E1E30"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- Main chrome border -->
+    <Border CornerRadius="14"
+            Background="#111118"
+            BorderBrush="#2A2A3A"
+            BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Border Grid.Row="0"
+                    Background="#0D0D15"
+                    CornerRadius="14,14,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid Margin="14,0">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="🌳" FontSize="14" Margin="0,0,8,0"/>
+                        <TextBlock Text="Tree Maker"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#A1A1AA"/>
+                        <TextBlock Text=" — Fluent"
+                                   FontSize="10" Foreground="#52525B"
+                                   VerticalAlignment="Center" Margin="4,1,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <Button Content="─" FontSize="10" Width="36" Height="28"
+                                Style="{StaticResource FluentSecondaryButton}"
+                                Padding="0" Click="MinimizeButton_Click"/>
+                        <Button Content="□" FontSize="10" Width="36" Height="28"
+                                Style="{StaticResource FluentSecondaryButton}"
+                                Padding="0" Margin="4,0" Click="MaximizeButton_Click"/>
+                        <Button Content="✕" FontSize="10" Width="36" Height="28"
+                                Background="#7F1D1D" Foreground="#FCA5A5"
+                                Style="{StaticResource FluentSecondaryButton}"
+                                Padding="0" Click="CloseButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Content Area -->
+            <Grid Grid.Row="1" Margin="28,20,28,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="🌳  Tree Maker"
+                               FontSize="26" FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock Text="Select a folder, visualize its structure, export to a text file."
+                               FontSize="13" Foreground="#71717A" Margin="0,6,0,0"/>
+                </StackPanel>
+
+                <!-- Selected Folder Path -->
+                <Border Grid.Row="1"
+                        Background="#18182B"
+                        CornerRadius="10"
+                        Padding="14,10"
+                        Margin="0,0,0,16"
+                        BorderBrush="#2A2A3A" BorderThickness="1">
+                    <TextBlock x:Name="FolderPathText"
+                               Text="No folder selected…"
+                               FontSize="12.5"
+                               Foreground="#71717A"
+                               TextTrimming="CharacterEllipsis"/>
+                </Border>
+
+                <!-- Main Action Buttons -->
+                <UniformGrid Grid.Row="2" Columns="2"
+                             Margin="0,0,0,12">
+                    <Button x:Name="SelectFolderButton"
+                            Content="📂  Select Folder"
+                            Style="{StaticResource FluentPrimaryButton}"
+                            Margin="0,0,6,0"
+                            Click="SelectFolderButton_Click"/>
+                    <Button x:Name="OpenFileButton"
+                            Content="📄  Open File"
+                            Style="{StaticResource FluentSecondaryButton}"
+                            Margin="6,0,0,0"
+                            IsEnabled="False"
+                            Click="OpenFileButton_Click"/>
+                </UniformGrid>
+
+                <!-- Collapsible Toggle -->
+                <ToggleButton x:Name="TreeToggle"
+                              Grid.Row="3"
+                              Style="{StaticResource ToggleExpandButton}"
+                              Margin="0,0,0,4"
+                              Checked="TreeToggle_Changed"
+                              Unchecked="TreeToggle_Changed">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="ToggleArrow" Text="▶"
+                                   FontSize="10" Margin="0,0,8,0"
+                                   Foreground="#6366F1"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform x:Name="ArrowRotation" Angle="0"/>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                        <TextBlock Text="Folder Structure"
+                                   FontSize="12" Foreground="#A1A1AA"/>
+                    </StackPanel>
+                </ToggleButton>
+
+                <!-- Collapsible TreeView Panel -->
+                <Border x:Name="TreePanel"
+                        Grid.Row="4"
+                        Background="#18182B"
+                        BorderBrush="#2A2A3A"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Margin="0,0,0,12"
+                        Visibility="Collapsed">
+                    <TreeView x:Name="FolderTreeView"
+                              BorderThickness="0"
+                              Background="Transparent"
+                              Padding="10"
+                              FontSize="12.5"
+                              Foreground="#D4D4D8"/>
+                </Border>
+
+                <!-- Progress -->
+                <StackPanel Grid.Row="5" Margin="0,0,0,12">
+                    <TextBlock x:Name="StatusText"
+                               Text="Ready"
+                               FontSize="11" Foreground="#52525B" Margin="0,0,0,6"/>
+                    <Border Background="#1E1E30" CornerRadius="5" Height="6">
+                        <Border x:Name="ProgressFill"
+                                Background="#6366F1"
+                                CornerRadius="5"
+                                HorizontalAlignment="Left"
+                                Width="0"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Generate Button -->
+                <Button x:Name="GenerateButton"
+                        Grid.Row="6"
+                        Content="⚡  Generate Tree File"
+                        Style="{StaticResource FluentPrimaryButton}"
+                        HorizontalAlignment="Stretch"
+                        IsEnabled="False"
+                        Click="GenerateButton_Click"/>
+            </Grid>
+        </Grid>
+    </Border>
+
+</Window>`,
+
+            maincs: `using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
+
+// ── Aliases to eliminate WPF ↔ WinForms ambiguity ──
+using WpfMessageBox                = System.Windows.MessageBox;
+using WpfApplication               = System.Windows.Application;
+using WinFormsFolderBrowserDialog   = System.Windows.Forms.FolderBrowserDialog;
+using WinFormsDialogResult          = System.Windows.Forms.DialogResult;
+
+namespace TreeMaker
+{
+    /// <summary>
+    /// Fluent-styled main window – folder tree visualiser & exporter.
+    /// </summary>
+    public partial class MainWindow : System.Windows.Window
+    {
+        private string? _selectedFolderPath;
+        private string? _generatedFilePath;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Custom Title-Bar Handlers
+        // ═══════════════════════════════════════════════
+        private void TitleBar_MouseLeftButtonDown(object sender,
+            System.Windows.Input.MouseButtonEventArgs e) => DragMove();
+
+        private void MinimizeButton_Click(object sender,
+            System.Windows.RoutedEventArgs e) =>
+            WindowState = System.Windows.WindowState.Minimized;
+
+        private void MaximizeButton_Click(object sender,
+            System.Windows.RoutedEventArgs e) =>
+            WindowState = WindowState == System.Windows.WindowState.Maximized
+                ? System.Windows.WindowState.Normal
+                : System.Windows.WindowState.Maximized;
+
+        private void CloseButton_Click(object sender,
+            System.Windows.RoutedEventArgs e) => Close();
+
+        // ═══════════════════════════════════════════════
+        //  Select Folder
+        // ═══════════════════════════════════════════════
+        private void SelectFolderButton_Click(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            using var dialog = new WinFormsFolderBrowserDialog
+            {
+                Description           = "Choose a folder to visualise",
+                ShowNewFolderButton    = true,
+                UseDescriptionForTitle = true
+            };
+
+            if (dialog.ShowDialog() != WinFormsDialogResult.OK) return;
+
+            _selectedFolderPath    = dialog.SelectedPath;
+            FolderPathText.Text    = _selectedFolderPath;
+            FolderPathText.Foreground =
+                new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)
+                    System.Windows.Media.ColorConverter
+                        .ConvertFromString("#E4E4E7"));
+
+            GenerateButton.IsEnabled = true;
+
+            PopulateTreeView(_selectedFolderPath);
+            StatusText.Text = $"Loaded — {_selectedFolderPath}";
+
+            // Auto-expand the tree panel
+            TreeToggle.IsChecked = true;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Open Generated File
+        // ═══════════════════════════════════════════════
+        private void OpenFileButton_Click(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_generatedFilePath) ||
+                !File.Exists(_generatedFilePath))
+            {
+                WpfMessageBox.Show(
+                    "No file has been generated yet.\\n" +
+                    "Select a folder and click Generate first.",
+                    "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName        = _generatedFilePath,
+                UseShellExecute = true
+            });
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Collapsible Panel Toggle
+        // ═══════════════════════════════════════════════
+        private void TreeToggle_Changed(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            bool open = TreeToggle.IsChecked == true;
+
+            var anim = new DoubleAnimation
+            {
+                To       = open ? 90 : 0,
+                Duration = TimeSpan.FromMilliseconds(200),
+                EasingFunction = new QuadraticEase
+                    { EasingMode = EasingMode.EaseInOut }
+            };
+            ArrowRotation.BeginAnimation(
+                System.Windows.Media.RotateTransform.AngleProperty, anim);
+
+            TreePanel.Visibility = open
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Populate TreeView
+        // ═══════════════════════════════════════════════
+        private void PopulateTreeView(string rootPath)
+        {
+            FolderTreeView.Items.Clear();
+
+            var rootDir  = new DirectoryInfo(rootPath);
+            var rootNode = CreateTreeNode(rootDir);
+            FolderTreeView.Items.Add(rootNode);
+            rootNode.IsExpanded = true;
+        }
+
+        private TreeViewItem CreateTreeNode(DirectoryInfo dir)
+        {
+            var node = new TreeViewItem
+            {
+                Header     = $"📁 {dir.Name}",
+                Tag        = dir.FullName,
+                IsExpanded = false
+            };
+
+            try
+            {
+                foreach (var sub in dir.GetDirectories())
+                    node.Items.Add(CreateTreeNode(sub));
+
+                foreach (var file in dir.GetFiles())
+                {
+                    string icon = IconFor(
+                        file.Extension.ToLowerInvariant());
+                    node.Items.Add(new TreeViewItem
+                    {
+                        Header = $"{icon} {file.Name}",
+                        Tag    = file.FullName
+                    });
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                node.Items.Add(new TreeViewItem
+                {
+                    Header     = "⛔ Access Denied",
+                    Foreground = System.Windows.Media.Brushes.Gray
+                });
+            }
+            catch (IOException ex)
+            {
+                node.Items.Add(new TreeViewItem
+                {
+                    Header     = $"⚠️ {ex.Message}",
+                    Foreground = System.Windows.Media.Brushes.Gray
+                });
+            }
+
+            return node;
+        }
+
+        private static string IconFor(string ext) => ext switch
+        {
+            ".cs"     => "🟣",
+            ".xaml"   => "🔵",
+            ".json"   => "🟡",
+            ".xml"    => "🟠",
+            ".txt"    => "📝",
+            ".md"     => "📖",
+            ".sln"    => "🏗️",
+            ".csproj" => "🔧",
+            ".exe"    => "⚙️",
+            ".dll"    => "📦",
+            ".png" or ".jpg" or ".jpeg"
+                or ".gif" or ".bmp" => "🖼️",
+            _         => "📄"
+        };
+
+        // ═══════════════════════════════════════════════
+        //  Generate Tree File  (async + animated progress)
+        // ═══════════════════════════════════════════════
+        private async void GenerateButton_Click(object sender,
+            System.Windows.RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_selectedFolderPath) ||
+                !Directory.Exists(_selectedFolderPath))
+            {
+                WpfMessageBox.Show(
+                    "Please select a valid folder first.",
+                    "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            GenerateButton.IsEnabled     = false;
+            SelectFolderButton.IsEnabled = false;
+            OpenFileButton.IsEnabled     = false;
+            StatusText.Text              = "Generating…";
+            AnimateProgress(0);
+
+            string outPath = Path.Combine(
+                _selectedFolderPath, "Folder_Structure.txt");
+
+            try
+            {
+                int total = await Task.Run(
+                    () => CountItems(_selectedFolderPath));
+                int done  = 0;
+
+                var sb = new StringBuilder();
+                sb.AppendLine(
+                    $"Folder Structure: {_selectedFolderPath}");
+                sb.AppendLine(new string('═', 60));
+                sb.AppendLine();
+
+                var progress = new Progress<string>(name =>
+                {
+                    done++;
+                    double pct = total > 0
+                        ? (double)done / total * 100 : 0;
+                    AnimateProgress(pct);
+                    StatusText.Text = $"Processing: {name}";
+                });
+
+                await Task.Run(() =>
+                    BuildTree(sb, _selectedFolderPath,
+                              "", true, progress));
+
+                await File.WriteAllTextAsync(outPath, sb.ToString());
+
+                _generatedFilePath = outPath;
+                AnimateProgress(100);
+                StatusText.Text = $"✅ Saved → {outPath}";
+
+                OpenFileButton.IsEnabled = true;
+
+                WpfMessageBox.Show(
+                    $"Tree file created!\\n\\n{outPath}",
+                    "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                WpfMessageBox.Show(
+                    $"Error:\\n{ex.Message}", "Tree Maker",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+                StatusText.Text = "Error occurred.";
+            }
+            finally
+            {
+                GenerateButton.IsEnabled     = true;
+                SelectFolderButton.IsEnabled = true;
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Animated progress helper
+        // ═══════════════════════════════════════════════
+        private void AnimateProgress(double percent)
+        {
+            double maxWidth = ProgressFill.Parent is
+                System.Windows.FrameworkElement parent
+                    ? parent.ActualWidth : 400;
+
+            var anim = new DoubleAnimation
+            {
+                To       = maxWidth * (percent / 100.0),
+                Duration = TimeSpan.FromMilliseconds(250),
+                EasingFunction = new QuadraticEase
+                    { EasingMode = EasingMode.EaseOut }
+            };
+            ProgressFill.BeginAnimation(
+                System.Windows.FrameworkElement.WidthProperty, anim);
+        }
+
+        // ═══════════════════════════════════════════════
+        //  Helpers
+        // ═══════════════════════════════════════════════
+        private static int CountItems(string path)
+        {
+            int n = 0;
+            try
+            {
+                n += Directory.GetFiles(path).Length;
+                foreach (string d in Directory.GetDirectories(path))
+                { n++; n += CountItems(d); }
+            }
+            catch { }
+            return n;
+        }
+
+        private static void BuildTree(
+            StringBuilder sb, string path, string indent,
+            bool isRoot, IProgress<string> progress)
+        {
+            var dir = new DirectoryInfo(path);
+            if (isRoot) sb.AppendLine($"{dir.Name}/");
+
+            try
+            {
+                var items = new List<FileSystemInfo>();
+                items.AddRange(dir.GetDirectories());
+                items.AddRange(dir.GetFiles());
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    bool last  = i == items.Count - 1;
+                    string con = last ? "└── " : "├── ";
+                    string ci  = indent + (last ? "    " : "│   ");
+
+                    if (items[i] is DirectoryInfo sub)
+                    {
+                        sb.AppendLine($"{indent}{con}{sub.Name}/");
+                        progress.Report(sub.Name);
+                        BuildTree(sb, sub.FullName, ci,
+                                  false, progress);
+                    }
+                    else if (items[i] is FileInfo f)
+                    {
+                        sb.AppendLine($"{indent}{con}{f.Name}");
+                        progress.Report(f.Name);
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                sb.AppendLine($"{indent}└── [Access Denied]");
+            }
+            catch (IOException ex)
+            {
+                sb.AppendLine($"{indent}└── [Error: {ex.Message}]");
+            }
+        }
+    }
+}`
+        };
+
+        let currentFile = 'csproj';
+
+        // ═══════════════════════════════════
+        //  Switch file tab
+        // ═══════════════════════════════════
+        function switchFile(key) {
+            document.querySelectorAll('.code-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('file-' + key).classList.remove('hidden');
+            document.querySelector(`[data-file="${key}"]`).classList.add('active');
+            currentFile = key;
+            resetCopyBtn();
+        }
+
+        function resetCopyBtn() {
+            const btn = document.getElementById('copyBtn');
+            btn.classList.remove('copied');
+            document.getElementById('copyText').textContent = 'Copy';
+        }
+
+        // ═══════════════════════════════════
+        //  Copy to clipboard
+        // ═══════════════════════════════════
+        function copyCurrentCode() {
+            navigator.clipboard.writeText(codeFiles[currentFile]).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.classList.add('copied');
+                document.getElementById('copyText').textContent = 'Copied!';
+                setTimeout(resetCopyBtn, 2200);
+            });
+        }
+
+        // ═══════════════════════════════════
+        //  Live Preview — sample tree
+        // ═══════════════════════════════════
+        const sampleTree = {
+            name: "MyProject", type: "folder", children: [
+                { name: "src", type: "folder", children: [
+                    { name: "Components", type: "folder", children: [
+                        { name: "Header.cs", type: "file", icon: "🟣" },
+                        { name: "Footer.cs", type: "file", icon: "🟣" },
+                        { name: "Sidebar.xaml", type: "file", icon: "🔵" }
+                    ]},
+                    { name: "Models", type: "folder", children: [
+                        { name: "User.cs", type: "file", icon: "🟣" },
+                        { name: "Product.cs", type: "file", icon: "🟣" }
+                    ]},
+                    { name: "App.xaml", type: "file", icon: "🔵" },
+                    { name: "App.xaml.cs", type: "file", icon: "🟣" },
+                    { name: "MainWindow.xaml", type: "file", icon: "🔵" },
+                    { name: "MainWindow.xaml.cs", type: "file", icon: "🟣" }
+                ]},
+                { name: "assets", type: "folder", children: [
+                    { name: "logo.png", type: "file", icon: "🖼️" },
+                    { name: "icon.png", type: "file", icon: "🖼️" }
+                ]},
+                { name: "MyProject.csproj", type: "file", icon: "🔧" },
+                { name: "MyProject.sln", type: "file", icon: "🏗️" },
+                { name: "README.md", type: "file", icon: "📖" },
+                { name: "appsettings.json", type: "file", icon: "🟡" }
+            ]
+        };
+
+        function countTreeItems(node) {
+            let c = 1;
+            if (node.children) node.children.forEach(ch => c += countTreeItems(ch));
+            return c;
+        }
+
+        function renderNode(node, depth = 0) {
+            const indent = depth * 18;
+            const isFolder = node.type === "folder";
+            const icon = isFolder ? "📁" : (node.icon || "📄");
+            const id = 'tn-' + Math.random().toString(36).substr(2, 8);
+
+            let html = `<div class="tree-node flex items-center py-[3px] px-1.5" style="padding-left:${indent}px" ${isFolder ? `onclick="toggleNode('${id}')"` : ''}>`;
+            if (isFolder) {
+                html += `<span id="arrow-${id}" class="mr-1.5 text-[9px] text-indigo-400 inline-block transition-transform duration-200" style="width:10px">▶</span>`;
+            } else {
+                html += `<span style="width:10px" class="mr-1.5"></span>`;
+            }
+            html += `<span class="mr-1.5">${icon}</span>`;
+            html += `<span class="text-zinc-300">${node.name}${isFolder ? '/' : ''}</span>`;
+            html += `</div>`;
+
+            if (isFolder && node.children) {
+                html += `<div id="${id}" class="hidden">`;
+                node.children.forEach(ch => { html += renderNode(ch, depth + 1); });
+                html += `</div>`;
+            }
+            return html;
+        }
+
+        function toggleNode(id) {
+            const el = document.getElementById(id);
+            const arrow = document.getElementById('arrow-' + id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                el.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        let previewTreeOpen = false;
+
+        function simToggleTree() {
+            previewTreeOpen = !previewTreeOpen;
+            const panel = document.getElementById('previewTreePanel');
+            const arrow = document.getElementById('previewArrow');
+            if (previewTreeOpen) {
+                panel.classList.remove('collapsed');
+                panel.classList.add('expanded');
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                panel.classList.remove('expanded');
+                panel.classList.add('collapsed');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function simSelectFolder() {
+            document.getElementById('previewPath').textContent = 'C:\\Users\\Developer\\MyProject';
+            document.getElementById('previewPath').className = 'text-zinc-200';
+
+            const tree = document.getElementById('previewTree');
+            tree.innerHTML = renderNode(sampleTree);
+
+            // Auto-expand root
+            const first = tree.querySelector('[id^="tn-"]');
+            if (first) {
+                first.classList.remove('hidden');
+                const aid = 'arrow-' + first.id;
+                const a = document.getElementById(aid);
+                if (a) a.style.transform = 'rotate(90deg)';
+            }
+
+            // Show item count
+            const cnt = document.getElementById('treeItemCount');
+            cnt.textContent = `${countTreeItems(sampleTree)} items`;
+            cnt.classList.remove('hidden');
+
+            // Auto-open panel
+            if (!previewTreeOpen) simToggleTree();
+
+            // Enable generate
+            const gen = document.getElementById('previewGenBtn');
+            gen.disabled = false;
+            gen.style.background = '#6366f1';
+            gen.style.color = 'white';
+            gen.style.boxShadow = '0 8px 20px rgba(99,102,241,0.25)';
+            gen.classList.remove('cursor-not-allowed');
+            gen.classList.add('cursor-pointer');
+
+            document.getElementById('previewStatus').textContent = 'Loaded — C:\\Users\\Developer\\MyProject';
+        }
+
+        function simOpenFile() {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold animate-in z-50 flex items-center gap-2';
+            toast.innerHTML = '<span>📄</span> Opening Folder_Structure.txt in default editor…';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        let isGenerating = false;
+        function simGenerate() {
+            if (isGenerating) return;
+            isGenerating = true;
+
+            const btn = document.getElementById('previewGenBtn');
+            btn.disabled = true;
+            btn.style.background = '#3f3f5c';
+            btn.style.color = '#71717a';
+            btn.style.boxShadow = 'none';
+
+            const progress = document.getElementById('previewProgress');
+            const status = document.getElementById('previewStatus');
+            const items = ['Components/', 'Header.cs', 'Footer.cs', 'Sidebar.xaml', 'Models/', 'User.cs', 'Product.cs', 'App.xaml', 'App.xaml.cs', 'MainWindow.xaml', 'MainWindow.xaml.cs', 'assets/', 'logo.png', 'icon.png', 'MyProject.csproj', 'MyProject.sln', 'README.md', 'appsettings.json'];
+
+            let i = 0;
+            progress.style.width = '0%';
+
+            const interval = setInterval(() => {
+                if (i < items.length) {
+                    const pct = ((i + 1) / items.length) * 100;
+                    progress.style.width = pct + '%';
+                    status.textContent = `Processing: ${items[i]}`;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    progress.style.width = '100%';
+                    status.textContent = '✅ Saved → C:\\Users\\Developer\\MyProject\\Folder_Structure.txt';
+
+                    // Enable buttons
+                    btn.disabled = false;
+                    btn.style.background = '#6366f1';
+                    btn.style.color = 'white';
+                    btn.style.boxShadow = '0 8px 20px rgba(99,102,241,0.25)';
+                    btn.classList.add('cursor-pointer');
+
+                    const openBtn = document.getElementById('previewOpenBtn');
+                    openBtn.disabled = false;
+                    openBtn.style.color = '#c7d2fe';
+                    openBtn.style.borderColor = '#3f3f5c';
+                    openBtn.classList.remove('cursor-not-allowed');
+                    openBtn.classList.add('cursor-pointer');
+
+                    isGenerating = false;
+
+                    // Success toast
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold animate-in z-50 flex items-center gap-2';
+                    toast.innerHTML = '<span>✅</span> Tree file created successfully!';
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3500);
+                }
+            }, 120);
+        }
+
+        // Re-run Prism
+        Prism.highlightAll();
+    </script>
+</body>
+</html>
