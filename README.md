@@ -14,7 +14,7 @@
 [![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-87CEEB?style=for-the-badge&labelColor=555555&logo=windows&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/download/v1.0/Tree.Maker.bat)
 
 نسخه اصلی :
-[![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-VIEW-87CEEB?style=for-the-badge&labelColor=555555&logo=windows&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/v2.0)
+[![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-VIEW-87CEEB?style=for-the-badge&labelColor=555555&logo=windows&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/tag/V2.0)
 
 ---
 
