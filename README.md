@@ -16,8 +16,7 @@
 
 ---
 
-✅ **راهنمای ساخت:**  ###[![How to create](https://img.shields.io/badge/Graphical%2assistant%20HTML-View-87CEEB?style=for-the-badge&logoColor=gray)](https://Nima-Shaheswarzadeh.github.io/Tree-Maker)
-
+✅ **راهنمای ساخت:** [![Graphical HTML Viewer](https://img.shields.io/badge/Graphical%20HTML%20Viewer-View-87CEEB?style=for-the-badge&logo=html5&logoColor=white)](https://nima-shaheswarzadeh.github.io/Tree-Maker/)
 ---
 
 ## ✨ امکانات کلیدی
