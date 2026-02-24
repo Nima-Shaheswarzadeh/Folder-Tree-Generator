@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<RootNamespace>TreeMaker</RootNamespace>
+		<AssemblyName>TreeMaker</AssemblyName>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationIcon />
+	</PropertyGroup>
+
+</Project>

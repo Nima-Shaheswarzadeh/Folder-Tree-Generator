@@ -1,0 +1,19 @@
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\bin\x86\Debug\net9.0-windows\TreeMaker.exe
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\bin\x86\Debug\net9.0-windows\TreeMaker.deps.json
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\bin\x86\Debug\net9.0-windows\TreeMaker.runtimeconfig.json
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\bin\x86\Debug\net9.0-windows\TreeMaker.dll
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\bin\x86\Debug\net9.0-windows\TreeMaker.pdb
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\MainWindow.baml
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\MainWindow.g.cs
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\App.g.cs
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\TreeMaker_MarkupCompile.cache
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\TreeMaker.g.resources
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\Tree Maker.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\Tree Maker.AssemblyInfoInputs.cache
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\Tree Maker.AssemblyInfo.cs
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\Tree Maker.csproj.CoreCompileInputs.cache
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\TreeMaker.dll
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\refint\TreeMaker.dll
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\TreeMaker.pdb
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\Tree Maker.genruntimeconfig.cache
+C:\Users\Nima.Sh\Documents\Visual Studio Prpjects\Tree Maker\obj\x86\Debug\net9.0-windows\ref\TreeMaker.dll
