@@ -14,7 +14,6 @@
 
 ### نسخه اصلی (Release Page):  [![TRY THIS - VIEW](https://img.shields.io/badge/TRY%20THIS-VIEW-87CEEB?style=for-the-badge\&labelColor=555555\&logo=windows\&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases)
 
----
 
 ✅ **راهنمای ساخت:**  [![Graphical HTML Viewer](https://img.shields.io/badge/Graphical%20HTML%20Viewer-View-87CEEB?style=for-the-badge)](https://nima-shaheswarzadeh.github.io/Tree-Maker/)
 
