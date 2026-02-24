@@ -10,14 +10,13 @@
 
 😍 **برای تست و استفاده:**
 
-### نسخه سبک (Portable .bat)  [![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-87CEEB?style=for-the-badge\&labelColor=555555\&logo=windows\&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/download/v1.0/Tree.Maker.bat)
+### نسخه سبک (Portable .bat):  [![TRY THIS - DOWNLOAD](https://img.shields.io/badge/TRY%20THIS-DOWNLOAD-87CEEB?style=for-the-badge\&labelColor=555555\&logo=windows\&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases/download/v1.0/Tree.Maker.bat)
 
-### نسخه اصلی (Release Page)  [![TRY THIS - VIEW](https://img.shields.io/badge/TRY%20THIS-VIEW-87CEEB?style=for-the-badge\&labelColor=555555\&logo=windows\&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases)
+### نسخه اصلی (Release Page):  [![TRY THIS - VIEW](https://img.shields.io/badge/TRY%20THIS-VIEW-87CEEB?style=for-the-badge\&labelColor=555555\&logo=windows\&logoColor=gray)](https://github.com/Nima-Shaheswarzadeh/Tree-Maker/releases)
 
 ---
 
-راهنمای ساخت :
-[![How to create](https://img.shields.io/badge/Graphical%2assistant%20HTML-View-87CEEB?style=for-the-badge&logoColor=gray)](https://Nima-Shaheswarzadeh.github.io/Tree-Maker)
+✅ **راهنمای ساخت:**  [![How to create](https://img.shields.io/badge/Graphical%2assistant%20HTML-View-87CEEB?style=for-the-badge&logoColor=gray)](https://Nima-Shaheswarzadeh.github.io/Tree-Maker)
 
 ---
 
